@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import pandas as pd
@@ -51,7 +51,7 @@ max_sr_weights = max_SR_allocation['allocation']/100
 min_vol_weights = min_vol_allocation['allocation']/100
 
 test_end = dt.datetime(2021, 9, 17)
-test_start = dt.datetime(2020, 9, 18)
+test_start = dt.datetime(2019, 9, 18)
 
 test_mean_returns, test_cov_matrix = fetch_data.get_data(stock_df, test_start, test_end)
 
@@ -65,29 +65,26 @@ min_volatility_perf = opt_portfolio.portfolio_performance(min_vol_weights, test_
 max_SR_perf = opt_portfolio.portfolio_performance(max_sr_weights, test_mean_returns, test_cov_matrix)
 
 max_SR_performance = (stock_df.dropna() * max_sr_weights).sum(axis=1)
-# max_SR_performance = (max_SR_performance/ max_SR_performance.iloc[0]) * 100
-
 min_vol_performance = (stock_df.dropna() * min_vol_weights).sum(axis=1)
-# min_vol_performance = (min_vol_performance/ min_vol_performance.iloc[0]) * 100
 
-portfolio_performance = pd.DataFrame(columns=['Max SR Portfolio', 'Min Vol Portfolio']) 
-portfolio_performance['Max SR Portfolio'] = max_SR_performance
-portfolio_performance['Min Vol Portfolio'] = min_vol_performance
+summary_df = pd.DataFrame(columns=['Min. Vol. Portfolio', 'Max SR Portfolio'], \
+    index=['Cumulative Growth','CAGR', 'Sharpe Ratio', 'Annualized Returns', 'Annualized Volatility'])
 
-portfolio_performance = portfolio_performance.join(index_df)
-portfolio_performance = portfolio_performance.divide(portfolio_performance.iloc[0]) * 100
+summary_df['Min. Vol. Portfolio'] = ['{:.2f}%'.format(min_volatility_growth*100), \
+    '{:.2f}%'.format(min_volatility_CAGR*100), \
+        '{:.2f}'.format(min_volatility_perf[0]/ min_volatility_perf[1]), \
+        '{:.2f}%'.format(min_volatility_perf[0]*100), '{:.2f}%'.format(min_volatility_perf[1]*100)]
 
-print('Min vol. cumu. growth: {:.2f}%'.format(min_volatility_growth*100))
-print('Max SR cumu. growth: {:.2f}%'.format(max_SR_growth*100))
+summary_df['Max SR Portfolio'] = ['{:.2f}%'.format(max_SR_growth*100), \
+    '{:.2f}'.format(max_SR_CAGR*100), \
+    '{:.2f}'.format(max_SR_perf[0]/ max_SR_perf[1]), \
+        '{:.2f}%'.format(max_SR_perf[0]*100), '{:.2f}%'.format(max_SR_perf[1]*100)]
 
-print('Min vol. CAGR: {:.2f}%'.format(min_volatility_CAGR*100))
-print('Max SR CAGR: {:.2f}%'.format(max_SR_CAGR*100))
-
-print('Min vol. portfolio Sharpe Ratio: {}'.format(min_volatility_perf[0]/ min_volatility_perf[1]))
-print('Max SR portfolio Sharpe Ratio: {}'.format(max_SR_perf[0]/ max_SR_perf[1]))
+summary_df_copy = summary_df.copy().reset_index()
+summary_df_copy = summary_df_copy.rename(columns={'index':'Metric'})
 
 #generating random portfolio weights to show they are suboptimal
-num_dummy_weights = 300
+num_dummy_weights = 500
 dummy_performance_list = []
 
 for i in range(num_dummy_weights):
@@ -106,10 +103,12 @@ data_text = dcc.Markdown(
     """
     >The modern portfolio theory (MPT) by Harry Markowitz is a practical method 
     for selecting investments in order to maximize their overall returns 
-    within an acceptable level of risk.
-    A key component of the MPT theory is diversification. The Efficient Frontier 
-    is a common phrase in Modern Finance since the inception of Modern Portfolio 
-    Theory in 1952 by Harry Markowitz.
+    within an acceptable level of risk. Here I've tried to apply the Modern Portfolio Theroy 
+    on the stocks listed at the National Stock Exchange in India.
+    
+    >Efficient frontier is calculated by first finding the Minimum Volatility Portfolio (Good returns, Very low-risk) 
+    and the Maximum Sharpe Ratio Portfolio (Amazing Returns, High Risk). After that the efficient frontier is calculated 
+    by calculating portfolios that provide intermediate returns and have the lowest risk-profile
     [Data source](https://finance.yahoo.com)
     """
 )
@@ -133,36 +132,11 @@ app.layout = dbc.Container(
     [
         dbc.Row(
             dbc.Col(
-                html.H1(
-                    " ",
-                    className="text-center"
-                ),
-            )
-        ),
-        dbc.Row(
-            dbc.Col(
                 html.H3(
                     "Efficient Frontier for the stocks listed at the National Stock Exchange, India",
                     className="text-center"
                 ),
             )
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(id="plot_efficient_frontier", figure={}),
-                ),
-                dbc.Col(
-                    dcc.Graph(id="plot_covariance_matrix", figure={}),
-                )
-            ]
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dcc.Graph(id="plot_portfolio_performance", figure={}),
-                )
-            ]
         ),
         dbc.Row(
             [
@@ -176,13 +150,87 @@ app.layout = dbc.Container(
             ]
         ),
         dbc.Row(
-            dbc.Col(
-                dcc.Dropdown(
-                    id='year',
-                    value=2022,
-                    clearable=False,
-                    style={'display': 'none'}
+            [
+                dbc.Col(
+                    dcc.Graph(id="plot_efficient_frontier", figure={}),
+                ),
+                dbc.Col(
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dcc.Dropdown(id="select_portfolio",
+                                    options=[
+                                        {"label": "View the Maximum Sharpe Ratio Portfolio", "value": "Max_SR"}, 
+                                        {"label": "View the Minimum Volatility Portfolio", "value": "Min_Vol"}],
+                                    multi=False,
+                                    value="Max_SR"
+                                    ),
+                                    dcc.Graph(id="plot_portfolio_allotment", figure={})
+                                ]
+                            )
+                        ]
+                    )
                 )
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    width=3
+                ),
+                dbc.Col(
+                    [
+                        html.H4(
+                            "Compare the performance against a benchmark portfolio",
+                            className="text-center"
+                        ),
+                        dcc.Dropdown(id="select_index",
+                            options=[
+                                {"label": "Nifty 50 (National Stock Exchange)", "value": "nifty50"}, 
+                                {"label": "Sensex 30 (Bombay Stock Exchange)", "value": "sensex30"}],
+                            multi=True,
+                            value='nifty50', 
+                            placeholder="Choose a benchmark to compare the portfolio performance"
+                        )
+                    ]
+                ),
+                dbc.Col(
+                    width=3
+                )
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dcc.Graph(id="plot_portfolio_performance", figure={}),
+                )
+            ]
+        ), 
+        dbc.Row(
+            [
+                dbc.Col(
+                    width=3
+                ),
+                dbc.Col(
+                    [
+                        dash_table.DataTable(
+                            id='table',
+                            columns=[{"name": i, "id": i} for i in summary_df_copy.columns],
+                            data=summary_df_copy.to_dict('records')
+                        )
+                    ]
+                ),
+                dbc.Col(
+                    width=3
+                )
+            ]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    html.Br(),
+                ]
             )
         )
     ],
@@ -194,16 +242,17 @@ app.layout = dbc.Container(
 @app.callback(
     [Output(component_id='output_container', component_property='children'), 
     Output(component_id='plot_efficient_frontier', component_property='figure'), 
-    Output(component_id='plot_covariance_matrix', component_property='figure'), 
+    Output(component_id='plot_portfolio_allotment', component_property='figure'), 
     Output(component_id='plot_portfolio_performance', component_property='figure')],
-    [Input(component_id='year', component_property='value')]
+    [Input(component_id='select_portfolio', component_property='value'), 
+    Input(component_id='select_index', component_property='value')]
 )
 
-def update_graph(year):
+def update_graph(select_portfolio, select_index):
     container = " "
     #Max SR
     MaxSharpeRatio = go.Scatter(
-        name='Maximium Sharpe Ratio',
+        name='Maximium Sharpe Ratio Portfolio',
         mode='markers',
         x=[max_SR_std],
         y=[max_SR_returns],
@@ -212,7 +261,7 @@ def update_graph(year):
 
     #Min Vol
     MinVol = go.Scatter(
-        name='Mininium Volatility',
+        name='Mininium Volatility Portfolio',
         mode='markers',
         x=[min_vol_std],
         y=[min_vol_returns],
@@ -238,33 +287,48 @@ def update_graph(year):
     )
 
     data = [MaxSharpeRatio, MinVol, EF_curve, DummyPortfolio]
-
+    title_subtext1 = "<sup>Each data point in the graph below is a portfolio made from the stocks listed on the National Stock Exchange (NSE)</sup><br>"
     layout = go.Layout(
-        title = 'Portfolio Optimisation with the Efficient Frontier',
+        title = "Modern Portfolio Theory on NSE stocks<br>",
         yaxis = dict(title='Annualised Return (%)'),
         xaxis = dict(title='Annualised Volatility (%)'),
         showlegend = True,
-        legend = dict(
-            x = 0.75, y = 0, traceorder='normal',
-            bgcolor='#E2E2E2',
-            bordercolor='black',
-            borderwidth=1),
+        legend = dict(x = 0, y = 0.95, traceorder='normal', bgcolor='#E2E2E2', bordercolor='black', borderwidth=1),
         width=800,
         height=700)
 
-    fig = go.Figure(data=data, layout=layout)
+    ef_fig = go.Figure(data=data, layout=layout)
+    ef_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
     
-    filtered_max_SR_df = max_SR_allocation[max_SR_allocation['allocation'] >= 1]
-    max_SR_fig = px.pie(filtered_max_SR_df, values='allocation', \
-        names=filtered_max_SR_df.index, title='Maximum SR allocation', \
-            width=500, height=700)
+    if (select_portfolio == 'Max_SR'):    
+        filtered_max_SR_df = max_SR_allocation[max_SR_allocation['allocation'] >= 1]
+        alloc_fig = px.pie(filtered_max_SR_df, values='allocation', \
+            names=filtered_max_SR_df.index, title='Portfolio with high risk - high reward', \
+                width=500, height=700)
+    
+    if (select_portfolio == 'Min_Vol'):    
+        filtered_min_vol_df = min_vol_allocation[min_vol_allocation['allocation'] >= 1]
+        alloc_fig = px.pie(filtered_min_vol_df, values='allocation', \
+            names=filtered_min_vol_df.index, title='Portfolio with minimum risk - good reward',\
+                width=500, height=700)
+
+    alloc_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
+
+    portfolio_performance = pd.DataFrame(columns=['Max SR Portfolio', 'Min Vol Portfolio']) 
+    portfolio_performance['Max SR Portfolio'] = max_SR_performance
+    portfolio_performance['Min Vol Portfolio'] = min_vol_performance
+
+    ind_df = index_df.copy()
+    ind_df = ind_df[select_index]
+
+    portfolio_performance = portfolio_performance.join(ind_df)
+    portfolio_performance = portfolio_performance.divide(portfolio_performance.iloc[0]) * 100
 
     nav_fig = px.line(portfolio_performance, title='Portfolio performance (initial investment Rs 100)')
+    nav_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
 
-    # df = px.data.gapminder().query("country=='Canada'")
-    # nav_fig = px.line(df, x="year", y="lifeExp", title='Life expectancy in Canada')
 
-    return container, fig, max_SR_fig, nav_fig
+    return container, ef_fig, alloc_fig, nav_fig
 
 
 if __name__ == "__main__":
