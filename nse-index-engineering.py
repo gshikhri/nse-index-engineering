@@ -106,10 +106,18 @@ data_text = dcc.Markdown(
     within an acceptable level of risk. Here I've tried to apply the Modern Portfolio Theroy 
     on the stocks listed at the National Stock Exchange in India.
     
-    >Efficient frontier is calculated by first finding the Minimum Volatility Portfolio (Good returns, Very low-risk) 
-    and the Maximum Sharpe Ratio Portfolio (Amazing Returns, High Risk). After that the efficient frontier is calculated 
-    by calculating portfolios that provide intermediate returns and have the lowest risk-profile
-    [Data source](https://finance.yahoo.com)
+    >I have engineered two portfolios, a high risk high reward strategy portfolio labelled below 
+    as Maximum Sharpe Ratio Portfolio (Blue) and another that gives good returns with very low risk 
+    labelled below as Minimum Volatility Portfolio (Red) and another portfolio that works on . Finally the Green line shows the 
+    performance of the market index (Nifty 50). All investments are normalized to an initial 100 Rs 
+    investment 4.5 years ago (to capture all market cycles)
+    """
+)
+frontier_text = dcc.Markdown(
+    """
+    >How did I do this? Here is a teaser: I analyzed the historically available asset returns, 
+    variances and covariances and from that I optimized the weights for each asset such that 
+    I maximize my return while I minimize my risk. I teach about this in a cohort based [course](https://courses.shikhargupta.com) that I teach for free.
     """
 )
 
@@ -152,31 +160,6 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Graph(id="plot_efficient_frontier", figure={}),
-                ),
-                dbc.Col(
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                [
-                                    dcc.Dropdown(id="select_portfolio",
-                                    options=[
-                                        {"label": "View the Maximum Sharpe Ratio Portfolio", "value": "Max_SR"}, 
-                                        {"label": "View the Minimum Volatility Portfolio", "value": "Min_Vol"}],
-                                    multi=False,
-                                    value="Max_SR"
-                                    ),
-                                    dcc.Graph(id="plot_portfolio_allotment", figure={})
-                                ]
-                            )
-                        ]
-                    )
-                )
-            ]
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
                     width=3
                 ),
                 dbc.Col(
@@ -206,6 +189,49 @@ app.layout = dbc.Container(
                     dcc.Graph(id="plot_portfolio_performance", figure={}),
                 )
             ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.Hr(),
+                        html.H6(frontier_text, className="my-2"),
+                    ]
+                )
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dcc.Graph(id="plot_efficient_frontier", figure={}),
+                ),
+                dbc.Col(
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dcc.Dropdown(id="select_portfolio",
+                                    options=[
+                                        {"label": "View the Maximum Sharpe Ratio Portfolio", "value": "Max_SR"}, 
+                                        {"label": "View the Minimum Volatility Portfolio", "value": "Min_Vol"}],
+                                    multi=False,
+                                    value="Max_SR"
+                                    ),
+                                    dcc.Graph(id="plot_portfolio_allotment", figure={})
+                                ]
+                            )
+                        ]
+                    )
+                )
+            ]
+        ),
+        dbc.Row(
+            dbc.Col(
+                html.H4(
+                    "Performance of the engineered portfolios in a nut-shell",
+                    className="text-center"
+                ),
+            )
         ), 
         dbc.Row(
             [
