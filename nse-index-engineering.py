@@ -106,9 +106,11 @@ data_text = dcc.Markdown(
     
     >I have engineered two portfolios, a high risk high reward strategy portfolio labelled below 
     as Maximum Sharpe Ratio Portfolio (Blue) and another that gives good returns with very low risk 
-    labelled below as Minimum Volatility Portfolio (Red) and another portfolio that works on . Finally the Green line shows the 
-    performance of the market index (Nifty 50). All investments are normalized to an initial 100 Rs 
-    investment 4.5 years ago (to capture all market cycles)
+    labelled below as Minimum Volatility Portfolio (Red) and another portfolio that works on . 
+    Finally the Green line shows the performance of the market index (Nifty 50). 
+    You might notice below that the portfolios have vastly overperformed the benchmark index. 
+    Especially the low risk portfolio becuase it did not go through the same drawdown at the onset
+    of the pandemic in March 2020. 
     """
 )
 frontier_text = dcc.Markdown(
@@ -316,7 +318,6 @@ def update_graph(select_portfolio, select_index):
     )
 
     data = [MaxSharpeRatio, MinVol, EF_curve, DummyPortfolio]
-    title_subtext1 = "<sup>Each data point in the graph below is a portfolio made from the stocks listed on the National Stock Exchange (NSE)</sup><br>"
     layout = go.Layout(
         title = "Modern Portfolio Theory on NSE stocks<br>",
         yaxis = dict(title='Annualised Return (%)'),
@@ -353,7 +354,8 @@ def update_graph(select_portfolio, select_index):
     portfolio_performance = portfolio_performance.join(ind_df)
     portfolio_performance = portfolio_performance.divide(portfolio_performance.iloc[0]) * 100
 
-    nav_fig = px.line(portfolio_performance, title='Portfolio performance (initial investment Rs 100)')
+    sub_title = "<sup>All investments are normalized to an initial 100 Rs investment 4.5 years ago (to capture all market cycles)</sup><br>"
+    nav_fig = px.line(portfolio_performance, title='Portfolio performance<br>' + sub_title)
     nav_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
 
 
