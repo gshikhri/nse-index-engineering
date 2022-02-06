@@ -68,16 +68,14 @@ max_SR_performance = (stock_df.dropna() * max_sr_weights).sum(axis=1)
 min_vol_performance = (stock_df.dropna() * min_vol_weights).sum(axis=1)
 
 summary_df = pd.DataFrame(columns=['Min. Vol. Portfolio', 'Max SR Portfolio'], \
-    index=['Cumulative Growth','CAGR', 'Sharpe Ratio', 'Annualized Returns', 'Annualized Volatility'])
+    index=['Cumulative Growth','CAGR', 'Annualized Returns', 'Annualized Volatility'])
 
 summary_df['Min. Vol. Portfolio'] = ['{:.2f}%'.format(min_volatility_growth*100), \
     '{:.2f}%'.format(min_volatility_CAGR*100), \
-        '{:.2f}'.format(min_volatility_perf[0]/ min_volatility_perf[1]), \
         '{:.2f}%'.format(min_volatility_perf[0]*100), '{:.2f}%'.format(min_volatility_perf[1]*100)]
 
 summary_df['Max SR Portfolio'] = ['{:.2f}%'.format(max_SR_growth*100), \
-    '{:.2f}'.format(max_SR_CAGR*100), \
-    '{:.2f}'.format(max_SR_perf[0]/ max_SR_perf[1]), \
+    '{:.2f}%'.format(max_SR_CAGR*100), \
         '{:.2f}%'.format(max_SR_perf[0]*100), '{:.2f}%'.format(max_SR_perf[1]*100)]
 
 summary_df_copy = summary_df.copy().reset_index()
@@ -140,10 +138,13 @@ app.layout = dbc.Container(
     [
         dbc.Row(
             dbc.Col(
-                html.H3(
-                    "Efficient Frontier for the stocks listed at the National Stock Exchange, India",
-                    className="text-center"
-                ),
+                [
+                    html.Br(),
+                    html.H3(
+                        "Engineering efficient portfolios from Indian stocks",
+                        className="text-center"
+                    )
+                ]
             )
         ),
         dbc.Row(
@@ -152,8 +153,8 @@ app.layout = dbc.Container(
                     [
                         html.Hr(),
                         html.Div(id='output_container', children=[]),
-                        html.H6(data_text, className="my-2"),
-                    ]
+                        html.H6(data_text, className="my-2")
+                    ], width={"size": 10, "offset": 1}
                 )
             ]
         ),
@@ -186,7 +187,8 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Graph(id="plot_portfolio_performance", figure={}),
+                    dcc.Graph(id="plot_portfolio_performance", figure={}), 
+                    width={"size": 10, "offset": 1}
                 )
             ]
         ),
@@ -196,7 +198,8 @@ app.layout = dbc.Container(
                     [
                         html.Hr(),
                         html.H6(frontier_text, className="my-2"),
-                    ]
+                    ], 
+                    width={"size": 10, "offset": 1}
                 )
             ]
         ),
