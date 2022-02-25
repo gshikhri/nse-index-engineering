@@ -7,14 +7,14 @@ Repository for the dashboard app deployed (here)[http://nse-index-engineering.he
 - [Issues and questions](#issues-and-questions)
 
 ## Project overview
-This is an implementation of the Modern Portfolio Theory (MPT.)[https://www.investopedia.com/terms/m/modernportfoliotheory.asp] 
+This is an implementation of the Modern Portfolio Theory [MPT.](https://www.investopedia.com/terms/m/modernportfoliotheory.asp) 
 Here, I have applied the MPT on the stocks listed at the National Stock Exchange in India (NSE). 
 I have engineered two portfolios, a high risk-high reward strategy portfolio labelled below as Maximum Sharpe Ratio Portfolio (Blue) and another that gives good returns with very low risk labelled below as Minimum Volatility Portfolio (Red) and another portfolio that works on.
 
 Both the portfolios vastly overperform the benchmark as seen here (Benchmark Nifty 50 in green). An interesting observation from this portfolio is the minimal drawdown during the onset of Covid induced market correction for the minimum volatility portfolio (Highlighted in Red).
 
 ## Methodology
-The main idea is to designate weights to individual stocks such that the resulting portfolio maximizes the returns while maximizing the (Sharpe Ratio)[https://en.wikipedia.org/wiki/Sharpe_ratio] (Risk Adjusted Returns).
+The main idea is to designate weights to individual stocks such that the resulting portfolio maximizes the returns while maximizing the [Sharpe Ratio](https://en.wikipedia.org/wiki/Sharpe_ratio) (Risk Adjusted Returns).
 So given the mean returns and covariance betweeen the individual stocks, I define the negative sharpe ratio as: 
 
 ```python
@@ -42,7 +42,7 @@ def negative_sharpe_ratio(weights, mean_returns, cov_matrix, risk_free_rate=0.0)
     return -(p_returns-risk_free_rate)/p_std
 ```
 This is then maximized using (scipy.minimize)[https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html]
-```
+```python
 def maximize_sharpe_ratio(mean_returns, cov_matrix, risk_free_rate=0, constraint_set=(0, 1)):
     """
     Get the weights for stocks that will get maximum Sharpe ratio.
