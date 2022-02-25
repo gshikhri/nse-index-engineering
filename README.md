@@ -1,6 +1,6 @@
 # nse-index-engineering: 
 
-Repository for the dashboard app deployed (here)[http://nse-index-engineering.herokuapp.com]
+Repository for the dashboard app deployed [here](http://nse-index-engineering.herokuapp.com)
 
 - [Project overview](#project-overview)
 - [Methodology](#Methodology)
@@ -12,6 +12,7 @@ Here, I have applied the MPT on the stocks listed at the National Stock Exchange
 I have engineered two portfolios, a high risk-high reward strategy portfolio labelled below as Maximum Sharpe Ratio Portfolio (Blue) and another that gives good returns with very low risk labelled below as Minimum Volatility Portfolio (Red) and another portfolio that works on.
 
 Both the portfolios vastly overperform the benchmark as seen here (Benchmark Nifty 50 in green). An interesting observation from this portfolio is the minimal drawdown during the onset of Covid induced market correction for the minimum volatility portfolio (Highlighted in Red).
+![](https://github.com/gshikhri/nse-index-engineering/blob/main/assets/readme_image.png)
 
 ## Methodology
 The main idea is to designate weights to individual stocks such that the resulting portfolio maximizes the returns while maximizing the [Sharpe Ratio](https://en.wikipedia.org/wiki/Sharpe_ratio) (Risk Adjusted Returns).
@@ -41,7 +42,7 @@ def negative_sharpe_ratio(weights, mean_returns, cov_matrix, risk_free_rate=0.0)
     p_returns, p_std = portfolio_performance(weights, mean_returns, cov_matrix)  
     return -(p_returns-risk_free_rate)/p_std
 ```
-This is then maximized using (scipy.minimize)[https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html]
+This is then maximized using [scipy.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html)
 ```python
 def maximize_sharpe_ratio(mean_returns, cov_matrix, risk_free_rate=0, constraint_set=(0, 1)):
     """
@@ -78,4 +79,4 @@ def maximize_sharpe_ratio(mean_returns, cov_matrix, risk_free_rate=0, constraint
 ```
 
 ## Issues and questions
-In case you need help or have suggestions or you want to report an issue, please do so in a reproducible example at the corresponding [GitHub page](https://github.com/gshikhri/find-my-constellation/issues).
+In case you need help or have suggestions or you want to report an issue, please do so in a reproducible example at the corresponding [GitHub page](https://github.com/gshikhri/nse-index-engineering/issues).
