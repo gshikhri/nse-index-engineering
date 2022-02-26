@@ -117,7 +117,7 @@ frontier_text = dcc.Markdown(
     """
     >How did I do this? Here is a teaser: I analyzed the historically available asset returns, 
     variances and covariances and from that I optimized the weights for each asset such that 
-    I maximize my return while I minimize my risk. I teach about this in a cohort based [course](https://courses.shikhargupta.com) that I teach for free.
+    I maximize my return while I minimize my risk. I teach about this in a cohort based [course](https://webinars.shikhargupta.com) that I teach for free.
     """
 )
 
