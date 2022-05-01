@@ -6,7 +6,7 @@ import os
 import opt_portfolio
 import fetch_data
 import datetime as dt
-from get_data import get_stock_df, get_legacy_stock_df, get_index_df
+from get_data import get_stock_df, get_legacy_stock_df, get_index_df, get_legacy_index_df
 import numpy as np
 import plotly.express as px
 
@@ -25,18 +25,20 @@ index_dict = {
 }
 
 start_date = dt.datetime(2013, 5, 27)
-end_date = dt.datetime(2022, 2, 1)
+end_date = dt.datetime(2022, 4, 29)
 
-with open(os.path.join('Resources', 'ind_nifty50list.csv'), 'r') as read_file:
-    stock_list = pd.read_csv(read_file, sep=',')['Symbol'].values
-stock_list = [stock+'.NS' for stock in stock_list]
-
+# with open(os.path.join('Resources', 'ind_nifty50list.csv'), 'r') as read_file:
+#     stock_list = pd.read_csv(read_file, sep=',')['Symbol'].values
+# stock_list = [stock+'.NS' for stock in stock_list]
 # stock_df = get_stock_df(stock_list=stock_list, start_date=start_date, end_date=end_date)
 # stock_df.to_pickle('nifty_stock_df.pickle')
 
 stock_df = get_legacy_stock_df()
 
-index_df = get_index_df(index_dict, start_date, end_date)
+# index_df = get_index_df(index_dict, start_date, end_date)
+# index_df.to_pickle('index_stock_df.pickle')
+
+index_df = get_legacy_index_df()
 
 #choosing the training interval
 train_start = dt.datetime(2013, 5, 27)
@@ -50,8 +52,9 @@ max_SR_returns, max_SR_std, max_SR_allocation, min_vol_returns, \
 max_sr_weights = max_SR_allocation['allocation']/100
 min_vol_weights = min_vol_allocation['allocation']/100
 
-test_end = dt.datetime(2021, 9, 17)
-test_start = dt.datetime(2019, 9, 18)
+
+test_start = dt.datetime(2019, 4, 26)
+test_end = dt.datetime(2022, 4, 28)
 
 test_mean_returns, test_cov_matrix = fetch_data.get_data(stock_df, test_start, test_end)
 
