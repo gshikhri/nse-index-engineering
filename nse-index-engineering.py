@@ -21,11 +21,12 @@ server = app.server
 
 index_dict = {
     'nifty50': '^NSEI', 
-    'sensex30': '^BSESN'
+    'sensex30': '^BSESN',
+    'PPLTE': '0P0000YWL1.BO'
 }
 
 start_date = dt.datetime(2013, 5, 27)
-end_date = dt.datetime(2022, 4, 29)
+end_date = dt.datetime(2022, 5, 19)
 
 # with open(os.path.join('Resources', 'ind_nifty50list.csv'), 'r') as read_file:
 #     stock_list = pd.read_csv(read_file, sep=',')['Symbol'].values
@@ -35,14 +36,9 @@ end_date = dt.datetime(2022, 4, 29)
 
 stock_df = get_legacy_stock_df()
 
-# index_df = get_index_df(index_dict, start_date, end_date)
-# index_df.to_pickle('index_stock_df.pickle')
-
-index_df = get_legacy_index_df()
-
 #choosing the training interval
 train_start = dt.datetime(2013, 5, 27)
-train_end = dt.datetime(2018, 9, 17)
+train_end = dt.datetime(2018, 4, 27)
 train_mean_returns, train_cov_matrix = fetch_data.get_data(stock_df, train_start, train_end)
 
 max_SR_returns, max_SR_std, max_SR_allocation, min_vol_returns, \
@@ -53,22 +49,29 @@ max_sr_weights = max_SR_allocation['allocation']/100
 min_vol_weights = min_vol_allocation['allocation']/100
 
 
-test_start = dt.datetime(2019, 4, 26)
-test_end = dt.datetime(2022, 4, 28)
+test_start = dt.datetime(2018, 4, 27)
+test_end = dt.datetime(2022, 5, 18)
 
-test_mean_returns, test_cov_matrix = fetch_data.get_data(stock_df, test_start, test_end)
+# index_df = get_index_df(index_dict, test_start, test_end)
+# index_df.to_pickle('index_stock_df.pickle')
 
-min_volatility_growth = fetch_data.get_portfolio_growth(stock_df, min_vol_weights, test_start, test_end)
-max_SR_growth = fetch_data.get_portfolio_growth(stock_df, max_sr_weights, test_start, test_end)
+index_df = get_legacy_index_df()
 
-min_volatility_CAGR = fetch_data.get_portfolio_CAGR(stock_df, min_vol_weights, test_start, test_end)
-max_SR_CAGR = fetch_data.get_portfolio_CAGR(stock_df, max_sr_weights, test_start, test_end)
+test_stock_df = stock_df[test_start: test_end]
+
+test_mean_returns, test_cov_matrix = fetch_data.get_data(test_stock_df, test_start, test_end)
+
+min_volatility_growth = fetch_data.get_portfolio_growth(test_stock_df, min_vol_weights, test_start, test_end)
+max_SR_growth = fetch_data.get_portfolio_growth(test_stock_df, max_sr_weights, test_start, test_end)
+
+min_volatility_CAGR = fetch_data.get_portfolio_CAGR(test_stock_df, min_vol_weights, test_start, test_end)
+max_SR_CAGR = fetch_data.get_portfolio_CAGR(test_stock_df, max_sr_weights, test_start, test_end)
 
 min_volatility_perf = opt_portfolio.portfolio_performance(min_vol_weights, test_mean_returns, test_cov_matrix)
 max_SR_perf = opt_portfolio.portfolio_performance(max_sr_weights, test_mean_returns, test_cov_matrix)
 
-max_SR_performance = (stock_df.dropna() * max_sr_weights).sum(axis=1)
-min_vol_performance = (stock_df.dropna() * min_vol_weights).sum(axis=1)
+max_SR_performance = (test_stock_df.dropna() * max_sr_weights).sum(axis=1)
+min_vol_performance = (test_stock_df.dropna() * min_vol_weights).sum(axis=1)
 
 summary_df = pd.DataFrame(columns=['Min. Vol. Portfolio', 'Max SR Portfolio'], \
     index=['Cumulative Growth','CAGR', 'Annualized Returns', 'Annualized Volatility'])
@@ -177,7 +180,8 @@ app.layout = dbc.Container(
                         dcc.Dropdown(id="select_index",
                             options=[
                                 {"label": "Nifty 50 (National Stock Exchange)", "value": "nifty50"}, 
-                                {"label": "Sensex 30 (Bombay Stock Exchange)", "value": "sensex30"}],
+                                {"label": "Sensex 30 (Bombay Stock Exchange)", "value": "sensex30"},
+                                {"label": "Parag Parikh Long Term Equity", "value": "PPLTE"}],
                             multi=True,
                             value='nifty50', 
                             placeholder="Choose a benchmark to compare the portfolio performance"
@@ -357,7 +361,7 @@ def update_graph(select_portfolio, select_index):
     portfolio_performance = portfolio_performance.join(ind_df)
     portfolio_performance = portfolio_performance.divide(portfolio_performance.iloc[0]) * 100
 
-    sub_title = "<sup>All investments are normalized to an initial 100 Rs investment 4.5 years ago (to capture all market cycles)</sup><br>"
+    sub_title = "<sup>All investments are normalized to an initial 100 Rs investment (to capture all market cycles)</sup><br>"
     nav_fig = px.line(portfolio_performance, title='Portfolio performance<br>' + sub_title)
     nav_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
 
