@@ -28,18 +28,20 @@ index_dict = {
 start_date = dt.datetime(2013, 5, 27)
 end_date = dt.datetime(2022, 5, 19)
 
-# with open(os.path.join('Resources', 'ind_nifty50list.csv'), 'r') as read_file:
+# with open(os.path.join('Resources', 'ind_nifty100list.csv'), 'r') as read_file:
 #     stock_list = pd.read_csv(read_file, sep=',')['Symbol'].values
 # stock_list = [stock+'.NS' for stock in stock_list]
 # stock_df = get_stock_df(stock_list=stock_list, start_date=start_date, end_date=end_date)
-# stock_df.to_pickle('nifty_stock_df.pickle')
+# stock_df.to_pickle('nifty100_stock_df.pickle')
 
 stock_df = get_legacy_stock_df()
 
 #choosing the training interval
 train_start = dt.datetime(2013, 5, 27)
 train_end = dt.datetime(2018, 4, 27)
+
 train_mean_returns, train_cov_matrix = fetch_data.get_data(stock_df, train_start, train_end)
+negative_returns_mean, negative_returns_cov_matrix = fetch_data.get_negative_returns_data(stock_df, train_start, train_end)
 
 max_SR_returns, max_SR_std, max_SR_allocation, min_vol_returns, \
         min_vol_std, min_vol_allocation, efficient_list, target_returns \

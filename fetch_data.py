@@ -8,6 +8,8 @@ Created on Wed Mar 31 10:27:53 2021.
 
 import numpy as np
 
+from opt_portfolio import negative_sharpe_ratio
+
 def get_portfolio_growth(stock_df, weights, start_date, end_date):
     """
     Calculate the growth of a portfolio over a given time period.
@@ -76,6 +78,40 @@ def get_data(stock_df, start_date, end_date):
     filtered_df = stock_df.loc[mask]
     stock_returns = filtered_df.pct_change()
     mean_returns = stock_returns.mean()
-    cov_matrix = stock_returns.cov()  
+    cov_matrix = stock_returns.cov()
     return mean_returns, cov_matrix
+
+def get_negative_returns_data(stock_df, start_date, end_date):
+    """
+    Get mean and covariance matrix of negative returns for the selected stocks.
+
+    Parameters
+    ----------
+    stock_df : pandas.core.frame.DataFrame
+        Dataframe containing stock information, obtained from Yahoo.
+    start_date : datetime.datetime
+        start date for the data range for which stock data needs to be fetched.
+    end_date : datetime.datetime
+        end date for the data range for which stock data needs to be fetched.
+
+    Returns
+    -------
+    negative_returns_mean : pandas.core.series.Series
+        Arithematic mean of the daily stock returns when negative between the given datetime 
+        range.
+    negative_returns_cov_matrix : pandas.core.frame.DataFrame
+        Covariance matrix containing the covariance between the stocks in the 
+        stock_list when the returns are negative.
+    """
+    mask = (stock_df.index > start_date) & (stock_df.index <= end_date)
+    filtered_df = stock_df.loc[mask]
+    stock_returns = filtered_df.pct_change()
+    
+    negative_stock_returns = stock_returns[stock_returns<0]
+    negative_returns_mean = negative_stock_returns.mean()
+    negative_returns_cov_matrix = negative_stock_returns.cov()
+
+    return negative_returns_mean, negative_returns_cov_matrix
+
+
 
