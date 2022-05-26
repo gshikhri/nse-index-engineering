@@ -6,7 +6,7 @@ import os
 import opt_portfolio
 import fetch_data
 import datetime as dt
-from get_data import get_stock_df, get_legacy_stock_df, get_index_df, get_legacy_index_df
+from get_data import get_stock_df, get_legacy_stock_df, get_index_df, get_legacy_index_df, get_fund_comparison
 import numpy as np
 import plotly.express as px
 
@@ -22,7 +22,8 @@ server = app.server
 index_dict = {
     'nifty50': '^NSEI', 
     'sensex30': '^BSESN',
-    'PPLTE': '0P0000YWL1.BO'
+    'PPLTE': '0P0000YWL1.BO',
+    'ICICILOVOL': 'ICICILOVOL.NS'
 }
 
 start_date = dt.datetime(2013, 5, 27)
@@ -51,7 +52,7 @@ max_sr_weights = max_SR_allocation['allocation']/100
 min_vol_weights = min_vol_allocation['allocation']/100
 
 
-test_start = dt.datetime(2018, 4, 27)
+test_start = dt.datetime(2019, 2, 11)
 test_end = dt.datetime(2022, 5, 18)
 
 # index_df = get_index_df(index_dict, test_start, test_end)
@@ -183,9 +184,10 @@ app.layout = dbc.Container(
                             options=[
                                 {"label": "Nifty 50 (National Stock Exchange)", "value": "nifty50"}, 
                                 {"label": "Sensex 30 (Bombay Stock Exchange)", "value": "sensex30"},
-                                {"label": "Parag Parikh Long Term Equity", "value": "PPLTE"}],
+                                {"label": "Parag Parikh Long Term Equity", "value": "PPLTE"},
+                                {"label": "ICICI Low Volatility", "value": "ICICILOVOL"}],
                             multi=True,
-                            value='nifty50', 
+                            value=['nifty50', 'ICICILOVOL'], 
                             placeholder="Choose a benchmark to compare the portfolio performance"
                         )
                     ]
@@ -354,7 +356,7 @@ def update_graph(select_portfolio, select_index):
     alloc_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
 
     portfolio_performance = pd.DataFrame(columns=['Max SR Portfolio', 'Min Vol Portfolio']) 
-    portfolio_performance['Max SR Portfolio'] = max_SR_performance
+    # portfolio_performance['Max SR Portfolio'] = max_SR_performance
     portfolio_performance['Min Vol Portfolio'] = min_vol_performance
 
     ind_df = index_df.copy()
@@ -362,6 +364,8 @@ def update_graph(select_portfolio, select_index):
 
     portfolio_performance = portfolio_performance.join(ind_df)
     portfolio_performance = portfolio_performance.divide(portfolio_performance.iloc[0]) * 100
+
+    print(get_fund_comparison(portfolio_performance, tickers=portfolio_performance.columns))
 
     sub_title = "<sup>All investments are normalized to an initial 100 Rs investment (to capture all market cycles)</sup><br>"
     nav_fig = px.line(portfolio_performance, title='Portfolio performance<br>' + sub_title)
