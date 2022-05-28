@@ -14,6 +14,9 @@ I have engineered two portfolios, a high risk-high reward strategy portfolio lab
 Both the portfolios vastly overperform the benchmark as seen here (Benchmark Nifty 50 in green). An interesting observation from this portfolio is the minimal drawdown during the onset of Covid induced market correction for the minimum volatility portfolio (Highlighted in Red).
 ![](https://github.com/gshikhri/nse-index-engineering/blob/main/assets/readme_image.png)
 
+In addition to the point to point returns, the dashboard also lists the performance of the engineered portfolios with the benchmark (Nifty50) and with another low volatility portfolio.
+![](https://github.com/gshikhri/nse-index-engineering/blob/main/assets/fund_comparison.jpeg)
+
 ## Methodology
 The main idea is to designate weights to individual stocks such that the resulting portfolio maximizes the returns while maximizing the [Sharpe Ratio](https://en.wikipedia.org/wiki/Sharpe_ratio) (Risk Adjusted Returns).
 So given the mean returns and covariance betweeen the individual stocks, I define the negative sharpe ratio as: 
