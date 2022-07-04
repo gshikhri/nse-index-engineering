@@ -189,7 +189,6 @@ app.layout = dbc.Container(
                             options=[
                                 {"label": "Nifty 50 (National Stock Exchange)", "value": "nifty50"}, 
                                 {"label": "Sensex 30 (Bombay Stock Exchange)", "value": "sensex30"},
-                                {"label": "Parag Parikh Long Term Equity", "value": "PPLTE"},
                                 {"label": "ICICI Low Volatility", "value": "ICICILOVOL"}],
                             multi=True,
                             value=['nifty50', 'ICICILOVOL'], 
@@ -361,7 +360,7 @@ def update_graph(select_portfolio, select_index):
     alloc_fig.update_layout(title={'x':0.5, 'xanchor': 'center', 'yanchor': 'top'})
 
     portfolio_performance = pd.DataFrame(columns=['Max SR Portfolio', 'Min Vol Portfolio']) 
-    # portfolio_performance['Max SR Portfolio'] = max_SR_performance
+    portfolio_performance['Max SR Portfolio'] = max_SR_performance
     portfolio_performance['Min Vol Portfolio'] = min_vol_performance
 
     ind_df = index_df.copy()
