@@ -27,17 +27,17 @@ index_dict = {
 }
 
 start_date = dt.datetime(2013, 5, 27)
-end_date = dt.datetime(2022, 5, 19)
+end_date = dt.datetime(2022, 7, 1)
 
-# with open(os.path.join('Resources', 'ind_nifty100list.csv'), 'r') as read_file:
+# with open(os.path.join('Resources', 'ind_nifty50list.csv'), 'r') as read_file:
 #     stock_list = pd.read_csv(read_file, sep=',')['Symbol'].values
 # stock_list = [stock+'.NS' for stock in stock_list]
 # stock_df = get_stock_df(stock_list=stock_list, start_date=start_date, end_date=end_date)
-# stock_df.to_pickle('nifty100_stock_df.pickle')
+# stock_df.to_pickle('nifty_stock_df.pickle')
 
 stock_df = get_legacy_stock_df()
 
-#choosing the training interval
+#choosing the training interval 
 train_start = dt.datetime(2013, 5, 27)
 train_end = dt.datetime(2018, 4, 27)
 
@@ -53,7 +53,7 @@ min_vol_weights = min_vol_allocation['allocation']/100
 
 
 test_start = dt.datetime(2019, 2, 11)
-test_end = dt.datetime(2022, 5, 18)
+test_end = dt.datetime(2022, 6, 30)
 
 # index_df = get_index_df(index_dict, test_start, test_end)
 # index_df.to_pickle('index_stock_df.pickle')
