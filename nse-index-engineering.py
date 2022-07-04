@@ -6,7 +6,7 @@ import os
 import opt_portfolio
 import fetch_data
 import datetime as dt
-from get_data import get_stock_df, get_legacy_stock_df, get_index_df, get_legacy_index_df, get_fund_comparison
+from get_data import get_stock_df, get_legacy_stock_df, get_index_df, get_legacy_index_df, get_fund_comparison, get_portfolio_weights_df
 import numpy as np
 import plotly.express as px
 
@@ -51,6 +51,11 @@ max_SR_returns, max_SR_std, max_SR_allocation, min_vol_returns, \
 max_sr_weights = max_SR_allocation['allocation']/100
 min_vol_weights = min_vol_allocation['allocation']/100
 
+weights_df = pd.DataFrame()
+weights_df['max_sr_weights'] = max_sr_weights
+weights_df['min_vol_weights'] = min_vol_weights
+
+weights_df.to_pickle('portfolio_weights_df.pickle')
 
 test_start = dt.datetime(2019, 2, 11)
 test_end = dt.datetime(2022, 6, 30)

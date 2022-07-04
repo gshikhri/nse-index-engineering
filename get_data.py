@@ -18,6 +18,8 @@ def get_index_df(index_dict, start_date, end_date):
 def get_legacy_index_df():
     return pd.read_pickle('index_stock_df.pickle')
 
+def get_portfolio_weights_df():
+    return pd.read_pickle('portfolio_weights_df.pickle')
     
 def get_fund_comparison(data, tickers, return_type='mean', risk_free_rate=0, trading_days=248):
     daily_returns = data.pct_change()
